@@ -1,0 +1,22 @@
+services:
+  db:
+    image: ${POSTGRES_IMAGE}
+    container_name: postgres_compose
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  kafka:
+    image: ${KAFKA_IMAGE}
+    container_name: kafka_compose
+    ports:
+      - "9092:9092"
+
+volumes:
+  postgres_data:
+
