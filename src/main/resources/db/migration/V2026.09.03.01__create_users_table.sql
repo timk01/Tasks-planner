@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS users (
+    user_id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+
+    CONSTRAINT check_password_length_check CHECK (LENGTH(username) >= 5)
+)
