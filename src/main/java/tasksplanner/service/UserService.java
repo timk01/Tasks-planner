@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tasksplanner.entity.User;
 import tasksplanner.exception.managed.InvalidLoginDataException;
-import tasksplanner.exception.managed.UserAlreadyExistsException;
+import tasksplanner.exception.managed.EmailAlreadyExistsException;
 import tasksplanner.repository.UserRepository;
 import tasksplanner.request.UserLoginRequest;
 import tasksplanner.request.UserRegisterRequest;
@@ -22,24 +22,30 @@ public class UserService {
     private final PasswordEncoder encoder;
 
     public UserResponse register(UserRegisterRequest userRegisterDto) {
-        if (repository.existsByUsername(userRegisterDto.username())) {
-            throw new UserAlreadyExistsException("User name is already taken");
+        if (repository.existsByEmail(userRegisterDto.email())) {
+            throw new EmailAlreadyExistsException("This email is already taken");
         }
 
         String encodedPass = encoder.encode(userRegisterDto.password());
-        User user = repository.save(new User(userRegisterDto.username(), encodedPass));
+        User user = repository.save(new User(userRegisterDto.email(), encodedPass));
 
-        log.info(
+/*        log.info(
                 "User is registered: userId={}, name={}",
                 user.getId(),
                 user.getUsername()
-        );
+        );*/
 
-        return new UserResponse(user.getId(), user.getUsername());
+        //toDo ЖВТ токен в хеадер
+        /*
+        В случае успешной регистрации,
+        код ответа HTTP 200, HTTP заголовок ответа содержит выданный пользователю JWT access token
+         */
+
+        return new UserResponse(user.getId(), user.getEmail());
     }
 
     public UserResponse login(UserLoginRequest userLoginDto) {
-        User user = repository.findByUsername(userLoginDto.username())
+        /*User user = repository.findByUsername(userLoginDto.username())
                 .orElseThrow(() -> new InvalidLoginDataException("Invalid credentials"));
 
         if (!encoder.matches(userLoginDto.password(), user.getPassword())) {
@@ -51,7 +57,7 @@ public class UserService {
                 user.getId(),
                 user.getUsername()
         );
-
-        return new UserResponse(user.getId(), user.getUsername());
+*/
+        return new UserResponse(1L, "timk");// new UserResponse(user.getId(), user.getUsername());
     }
 }
