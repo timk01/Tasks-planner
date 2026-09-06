@@ -4,17 +4,17 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import tasksplanner.exception.managed.*;
 import tasksplanner.response.ErrorResponse;
 
-import java.nio.file.FileAlreadyExistsException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,20 +71,25 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(
-            MaxUploadSizeExceededException exception
+    @ExceptionHandler(
+            {
+                    BadCredentialsException.class,
+                    UsernameNotFoundException.class
+            }
+    )
+    public ResponseEntity<ErrorResponse> handleBadCredentialException(
+            Exception exception
     ) {
-        HttpStatus status = HttpStatus.PAYLOAD_TOO_LARGE;
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         log.warn(
-                "Upload size exceeded with status: {}, message: {}",
+                "Invalid request with status: {}, message: {}",
                 status,
                 exception.getMessage()
         );
 
         return new ResponseEntity<>(
-                new ErrorResponse("Maximum upload size exceeded"),
+                new ErrorResponse("Invalid credentials"),
                 status
         );
     }

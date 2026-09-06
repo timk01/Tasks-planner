@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,7 @@ import tasksplanner.request.UserLoginRequest;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
 import tasksplanner.response.UsernameResponse;
+import tasksplanner.security.JwtService;
 import tasksplanner.service.UserService;
 
 @RestController
@@ -31,45 +34,37 @@ public class UserController {
 
     private final UserService service;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping("/user")
     public ResponseEntity<?> registerUser(
             @Valid @RequestBody UserRegisterRequest userRegisterRequest
-            //сессия ?
     ) {
-        UserResponse register = service.register(userRegisterRequest);
+        UserResponse user = service.register(userRegisterRequest);
 
+        Jwt token = jwtService.generateToken(user);
 
-        //if (!password.equals(passwordConfirmation)) ... - и на входе проверка 2 полей ДТОхи
-
-        //сессия и безобразие с сеекьюрити, токеном (по идее то же что и с реддисом и хттпсессией)
-        //на деле если ОК - будем возвращать токен
-
-        /*
-        Зарегистрированный пользователь сразу же автоматически авторизуется, без отдельного заполнения логин формы
-В случае успешной регистрации, код ответа HTTP 200, HTTP заголовок ответа содержит выданный пользователю JWT access token
-         */
-
-        return ResponseEntity.ok().body(/* token */register);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getTokenValue())
+                .body(user);
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<UsernameResponse> login(
+    public ResponseEntity<?> login(
             @Valid @RequestBody UserLoginRequest loginRequest
-            //HttpSession session
     ) {
         Authentication authenticationRequest =
                 UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email(), loginRequest.password());
         Authentication authenticationResponse =
                 this.authenticationManager.authenticate(authenticationRequest);
 
-        UserResponse login = service.login(loginRequest);
-/*        session.setAttribute("userId", login.id());
-        session.setAttribute("username", login.username());*/
+        UserResponse user = service.findUserByEmail(loginRequest.email());
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new UsernameResponse(login.username()));
+        Jwt token = jwtService.generateToken(user);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getTokenValue())
+                .body(user);
     }
 }
 

@@ -1,0 +1,7 @@
+package tasksplanner.exception.managed;
+
+public class InvalidLoginDataException extends BaseAppException {
+    public InvalidLoginDataException(String message) {
+        super(message);
+    }
+}

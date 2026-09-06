@@ -12,6 +12,8 @@ import tasksplanner.request.UserLoginRequest;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
 
+import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -44,20 +46,10 @@ public class UserService {
         return new UserResponse(user.getId(), user.getEmail());
     }
 
-    public UserResponse login(UserLoginRequest userLoginDto) {
-        /*User user = repository.findByUsername(userLoginDto.username())
+    public UserResponse findUserByEmail(String email) {
+        User user = repository.findByEmail(email)
                 .orElseThrow(() -> new InvalidLoginDataException("Invalid credentials"));
-
-        if (!encoder.matches(userLoginDto.password(), user.getPassword())) {
-            throw new InvalidLoginDataException("Invalid credentials");
-        }
-
-        log.info(
-                "User is logged in: userId={}, name={}",
-                user.getId(),
-                user.getUsername()
-        );
-*/
-        return new UserResponse(1L, "timk");// new UserResponse(user.getId(), user.getUsername());
+        return new UserResponse(user.getId(), user.getEmail());
     }
+
 }
