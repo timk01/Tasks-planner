@@ -14,7 +14,6 @@ import tasksplanner.response.UserResponse;
 
 import java.util.Optional;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,17 +30,11 @@ public class UserService {
         String encodedPass = encoder.encode(userRegisterDto.password());
         User user = repository.save(new User(userRegisterDto.email(), encodedPass));
 
-/*        log.info(
-                "User is registered: userId={}, name={}",
+        log.info(
+                "User is registered: userId={}, email={}",
                 user.getId(),
-                user.getUsername()
-        );*/
-
-        //toDo ЖВТ токен в хеадер
-        /*
-        В случае успешной регистрации,
-        код ответа HTTP 200, HTTP заголовок ответа содержит выданный пользователю JWT access token
-         */
+                user.getEmail()
+        );
 
         return new UserResponse(user.getId(), user.getEmail());
     }
@@ -49,7 +42,13 @@ public class UserService {
     public UserResponse findUserByEmail(String email) {
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new InvalidLoginDataException("Invalid credentials"));
+
+        log.debug(
+                "User is retrieved: userId={}, email={}",
+                user.getId(),
+                user.getEmail()
+        );
+
         return new UserResponse(user.getId(), user.getEmail());
     }
-
 }

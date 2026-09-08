@@ -1,18 +1,16 @@
 package tasksplanner.exception.handler;
 
-import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.HandlerMethodValidationException;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
-import tasksplanner.exception.managed.*;
+import tasksplanner.exception.managed.BaseAppException;
+import tasksplanner.exception.managed.EmailAlreadyExistsException;
 import tasksplanner.response.ErrorResponse;
 
 import java.util.HashMap;
@@ -27,27 +25,6 @@ public class GlobalExceptionHandler {
 
     static {
         KNOWN_EXCEPTIONS_STATUS_MAP.put(EmailAlreadyExistsException.class, HttpStatus.CONFLICT);
-/*        KNOWN_EXCEPTIONS_STATUS_MAP.put(InvalidFilesException.class, HttpStatus.BAD_REQUEST);
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(InvalidFileNameException.class, HttpStatus.BAD_REQUEST);
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(ResourceTypeMismatchException.class, HttpStatus.BAD_REQUEST);
-
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(InvalidLoginDataException.class, HttpStatus.UNAUTHORIZED);
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(UnauthorizedActionException.class, HttpStatus.UNAUTHORIZED);
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(UserNotAuthenticatedException.class, HttpStatus.UNAUTHORIZED);
-
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(ParentFolderHasNotFoundException.class, HttpStatus.NOT_FOUND);
-
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(FolderNotFoundException.class, HttpStatus.NOT_FOUND);
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(SourceResourceNotFoundException.class, HttpStatus.NOT_FOUND);
-
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(UserAlreadyExistsException.class, HttpStatus.CONFLICT);
-
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(FolderAlreadyExistsException.class, HttpStatus.CONFLICT);
-        //KNOWN_EXCEPTIONS_STATUS_MAP.put(FileAlreadyExistsException.class, HttpStatus.CONFLICT);
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(DestinationResourceAlreadyExistsException.class, HttpStatus.CONFLICT);
-
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(SourceAndDestinationAreEqualException.class, HttpStatus.CONFLICT);
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(ResourceMoveConflictException.class, HttpStatus.CONFLICT);*/
     }
 
     @ExceptionHandler(BaseAppException.class)
@@ -83,7 +60,7 @@ public class GlobalExceptionHandler {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         log.warn(
-                "Invalid request with status: {}, message: {}",
+                "Authentication failed with status: {}, message: {}",
                 status,
                 exception.getMessage()
         );
@@ -97,10 +74,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(
             {
                     MethodArgumentNotValidException.class,
-                    ConstraintViolationException.class,
-                    HandlerMethodValidationException.class,
-                    MissingServletRequestParameterException.class,
-                    MissingServletRequestPartException.class
+                    HttpMessageNotReadableException.class
             }
     )
     public ResponseEntity<ErrorResponse> handleInvalidRequestException(
@@ -109,7 +83,7 @@ public class GlobalExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         log.warn(
-                "Invalid request with status: {}, message: {}",
+                "Invalid request data with status: {}, message: {}",
                 status,
                 exception.getMessage()
         );

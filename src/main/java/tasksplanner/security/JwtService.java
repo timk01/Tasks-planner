@@ -1,6 +1,7 @@
 package tasksplanner.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -9,11 +10,12 @@ import tasksplanner.response.UserResponse;
 import java.time.Duration;
 import java.time.Instant;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
-    private static final Duration EXPIRED_IN = Duration.ofHours(2);
+    private static final Duration EXPIRED_IN = Duration.ofHours(2); //.ofMinutes(1);
 
     private final JwtEncoder jwtEncoder;
 
@@ -31,6 +33,14 @@ public class JwtService {
 
         JwtEncoderParameters parameters = JwtEncoderParameters.from(header, claims);
 
-        return jwtEncoder.encode(parameters);
+        Jwt jwt = jwtEncoder.encode(parameters);
+
+        log.debug(
+                "JWT generated for userId={}, expiresAt={}",
+                user.id(),
+                jwt.getExpiresAt()
+        );
+
+        return jwt;
     }
 }
