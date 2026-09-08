@@ -1,16 +1,8 @@
 package tasksplanner.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import tasksplanner.request.UserLoginRequest;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
-import tasksplanner.response.UsernameResponse;
 import tasksplanner.security.JwtService;
 import tasksplanner.service.UserService;
 

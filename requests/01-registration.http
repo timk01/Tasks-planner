@@ -1,0 +1,434 @@
+@baseUrl = http://localhost:8080
+
+### 200 - Successfully create a user
+### min/max email = 6/254 (email is unique), min/max pass = 5/20 (password is no unique)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "tim_{{$timestamp}}@mail.ru",
+  "password": "pass_{{$timestamp}}",
+  "passwordConfirmation": "pass_{{$timestamp}}"
+}
+
+> {%
+    client.global.set("test_id", response.body.id);
+    client.global.set("test_email", response.body.email);
+
+    const email = response.body.email;
+    const runId = email.substring("tim_".length, email.indexOf("@"));
+
+    const digits = runId.slice(-4);
+    const code = digits.split("").map(d => String.fromCharCode(97 + Number(d))).join("");
+    client.global.set("min_email", code[0] + "@" + code[1] + "." + code.substring(2));
+
+    const maxEmailLocal = ("u" + runId + "x".repeat(64)).substring(0, 64);
+    client.global.set("max_email", maxEmailLocal + "@" + "a".repeat(63) + "." + "b".repeat(63) + "." + "c".repeat(61));
+
+    client.global.set("min_password", runId.substring(0, 5));
+    client.global.set("max_password", ("pass_" + runId + "x".repeat(20)).substring(0, 20));
+
+    client.global.set("min_password_email", "minpass_" + runId + "@mail.ru");
+    client.global.set("max_password_email", "maxpass_" + runId + "@mail.ru");
+
+    client.test("Successfully create a user", function () {
+        const body = response.body;
+        const testId = client.global.get("test_id");
+        const testEmail = client.global.get("test_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(response.status === 200, "Response status is 200");
+        client.assert(body.id === testId, "Server should return id of user");
+        client.assert(body.email === testEmail, "Server should return email of user");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+%}
+
+### 200 - Successfully create a user (with min length email)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{min_email}}",
+  "password": "superPassword123",
+  "passwordConfirmation": "superPassword123"
+}
+
+> {%
+    client.test("Successfully create a user", function () {
+        client.assert(response.status === 200, "Response status is 200");
+        const body = response.body;
+        const expectedEmail = client.global.get("min_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(body.id != null, "Server should return id of user");
+        client.assert(body.email === expectedEmail, "Server should return email of user - email is short");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+%}
+
+### 200 - Successfully create a user (with max user email)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "superPassword123",
+  "passwordConfirmation": "superPassword123"
+}
+
+> {%
+    client.test("Successfully create a user", function () {
+        client.assert(response.status === 200, "Response status is 200")
+
+        const body = response.body;
+        const expectedEmail = client.global.get("max_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(body.id != null, "Server should return id of user");
+        client.assert(body.email === expectedEmail, "Server should return email of user - email is long");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+%}
+
+### 200 - Successfully create a user (with min password length)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{min_password_email}}",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Successfully create a user", function() {
+        client.assert(response.status === 200, "Response status is 200");
+
+        const body = response.body;
+        const expectedEmail = client.global.get("min_password_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(body.id != null, "Server should return id of user");
+        client.assert(body.email === expectedEmail, "Server should return expected email");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+%}
+
+### 200 - Successfully create a user (with max password length)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_password_email}}",
+  "password": "{{max_password}}",
+  "passwordConfirmation": "{{max_password}}"
+}
+
+> {%
+    client.test("Successfully create a user", function() {
+        client.assert(response.status === 200, "Response status is 200");
+        const body = response.body;
+        const expectedEmail = client.global.get("max_password_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(body.id != null, "Server should return id of user");
+        client.assert(body.email === expectedEmail, "Server should return expected email");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+%}
+
+### 400 - request body is missing (whole body)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+> {%
+    client.test("Cannot create a user since request body is missing", function() {
+        client.assert(response.status === 400, "Response status is 400 since request body is missing");
+    });
+%}
+
+### 400 - request body contains malformed JSON (json is incorrect and for example has missed ',' between ields)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "user@mail.ru",
+  "password": "abcde"
+  "passwordConfirmation": "abcde"
+}
+
+> {%
+    client.test("Cannot create a user since request body is missing", function() {
+        client.assert(response.status === 400, "Response status is 400 since request body is missing");
+    });
+%}
+
+### 400 - email is empty
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is empty ");
+    });
+%}
+
+### 400 - email is blank (spaces only)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": " ",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is blank ");
+    });
+%}
+
+### 400 - email is too short (5)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "asd@b",
+  "password": "{{min_password}}{{$timestamp}}",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is too short");
+    });
+%}
+
+### 400 - email too long (over 254 characters)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}a",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user since email is too long", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is too long");
+    });
+%}
+
+
+
+
+
+
+
+
+### 400 - password is empty
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is empty ");
+    });
+%}
+
+### 400 - password is blank (spaces only)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "  ",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is blank ");
+    });
+%}
+
+### 400 - password is too short (4)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "aaaa",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is too short");
+    });
+%}
+
+### 400 - password too long (over 20 characters)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "{{max_password}}a",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user since password is too long", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is too long");
+    });
+%}
+
+### 400 - password contains invalid character
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "abc 12",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user since password contains invalid character", function() {
+        client.assert(response.status === 400, "Response status is 400 since password does not match pattern");
+    });
+%}
+
+
+
+
+
+### 400 - passwordConfirmation is empty
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "{{min_password}}",
+  "passwordConfirmation": ""
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since passwordConfirmation is empty ");
+    });
+%}
+
+### 400 - passwordConfirmation is blank (spaces only)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "  "
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since passwordConfirmation is blank ");
+    });
+%}
+
+### 400 - passwordConfirmation is too short (4)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "aaaa"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since passwordConfirmation is too short");
+    });
+%}
+
+### 400 - passwordConfirmation too long (over 20 characters)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{min}}_time",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "{{min_password}}a"
+}
+
+> {%
+    client.test("Cannot create a user since password is too long", function() {
+        client.assert(response.status === 400, "Response status is 400 since passwordConfirmation is too long");
+    });
+%}
+
+### 400 - passwordConfirmation contains invalid character
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "abc 12"
+}
+
+> {%
+    client.test("Cannot create a user since passwordConfirmation contains invalid character", function() {
+        client.assert(response.status === 400, "Response status is 400 since passwordConfirmation does not match pattern");
+    });
+%}
+
+
+### 409 - email is already taken
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "{{test_email}}",
+  "password": "{{min_password}}",
+  "passwordConfirmation": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 409, "Response status is 409 since email is already taken");
+    });
+%}
+
+###
