@@ -339,10 +339,6 @@ Content-Type: application/json
     });
 %}
 
-
-
-
-
 ### 400 - passwordConfirmation is empty
 POST {{baseUrl}}/user
 Content-Type: application/json
@@ -422,7 +418,6 @@ Content-Type: application/json
         client.assert(response.status === 400, "Response status is 400 since passwordConfirmation does not match pattern");
     });
 %}
-
 
 ### 409 - email is already taken
 POST {{baseUrl}}/user

@@ -15,7 +15,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class JwtService {
 
-    private static final Duration EXPIRED_IN = Duration.ofHours(2); //.ofMinutes(1);
+    private static final Duration EXPIRED_IN = Duration.ofHours(2);
 
     private final JwtEncoder jwtEncoder;
 
