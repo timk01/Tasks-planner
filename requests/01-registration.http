@@ -179,6 +179,22 @@ Content-Type: application/json
     });
 %}
 
+### 400 - password and repeatedPassword are not equal
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "user@mail.ru",
+  "password": "{{min_password}}a",
+  "passwordConfirmation": "{{min_password}}b"
+}
+
+> {%
+    client.test("Cannot create a user", function() {
+        client.assert(response.status === 400, "Response status is 400 since passwords are different");
+    });
+%}
+
 ### 400 - email is empty
 POST {{baseUrl}}/user
 Content-Type: application/json
@@ -242,13 +258,6 @@ Content-Type: application/json
         client.assert(response.status === 400, "Response status is 400 since email is too long");
     });
 %}
-
-
-
-
-
-
-
 
 ### 400 - password is empty
 POST {{baseUrl}}/user

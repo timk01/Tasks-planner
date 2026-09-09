@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+@PasswordsMatch
 public record UserRegisterRequest(
         @NotBlank(message = "Email should not be null and must contain at least one non-whitespace character")
         @Email
