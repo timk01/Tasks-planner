@@ -1,0 +1,271 @@
+@baseUrl = http://localhost:8080
+
+### 401 - Cannot login since user's email doesn't exist
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tim_@gmail{{$timestamp}}.com",
+  "password": "valid_pass"
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 401, "Response status is 401 since email does not exist");
+    });
+%}
+
+### Prereg phase 1 - Successfully create a user for future login
+### min/max email = 6/254 (email is unique), min/max pass = 5/20 (password is no unique)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "tim_{{$timestamp}}@mail.ru",
+  "password": "pass_{{$timestamp}}",
+  "passwordConfirmation": "pass_{{$timestamp}}"
+}
+
+> {%
+    client.global.set("test_id", response.body.id);
+    client.global.set("test_email", response.body.email);
+
+    const email = response.body.email;
+    const runId = email.substring("tim_".length, email.indexOf("@"));
+    client.global.set("test_password", "pass_" + runId);
+
+    const digits = runId.slice(-4);
+    const code = digits.split("").map(d => String.fromCharCode(97 + Number(d))).join("");
+    client.global.set("min_email", code[0] + "@" + code[1] + "." + code.substring(2));
+
+    const maxEmailLocal = ("u" + runId + "x".repeat(64)).substring(0, 64);
+    client.global.set("max_email", maxEmailLocal + "@" + "a".repeat(63) + "." + "b".repeat(63) + "." + "c".repeat(61));
+
+    client.global.set("min_password", runId.substring(0, 5));
+    client.global.set("max_password", ("pass_" + runId + "x".repeat(20)).substring(0, 20));
+
+    client.global.set("min_password_email", "minpass_" + runId + "@mail.ru");
+    client.global.set("max_password_email", "maxpass_" + runId + "@mail.ru");
+
+    client.test("Successfully create a user", function () {
+        const body = response.body;
+        const testId = client.global.get("test_id");
+        const testEmail = client.global.get("test_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(response.status === 200, "Response status is 200");
+        client.assert(body.id === Number(testId), "Server should return id of user");
+        client.assert(body.email === testEmail, "Server should return email of user");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+%}
+
+### 200 - Successfully loggged in
+### (boundary tests for success login test:
+### min/max email = 6/254 (email is unique), min/max pass = 5/20 (password is no unique)
+### are checked in registration with the whole same logic and hence, omitted
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{test_email}}",
+  "password": "{{test_password}}"
+}
+
+> {%
+    client.test("Successfully logged in a user", function () {
+        const body = response.body;
+        const testId = client.global.get("test_id");
+        const testEmail = client.global.get("test_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(response.status === 200, "Response status is 200");
+        client.assert(body.id === Number(testId), "Server should return id of user");
+
+        client.assert(body.email === testEmail, "Server should return email of user");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+%}
+
+### 401 - Cannot login since password is incorrect
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{test_email}}",
+  "password": "{{min_password}}_{{$timestamp}}"
+}
+
+> {%
+    client.test("Cannot login since password is incorrect", function() {
+        client.assert(response.status === 401, "Response status is 401 since password is incorrect");
+    });
+%}
+
+### 400 - while login, request body is missing (whole body)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+> {%
+    client.test("Cannot login since request body is missing", function() {
+        client.assert(response.status === 400, "Response status is 400 since request body is missing");
+    });
+%}
+
+### 400 - while login, request body contains malformed JSON (json is incorrect and for example has missed ',' between ields)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@mail.ru"
+  "password": "abcde"
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 400, "Response status is 400 since JSON is malformed");
+    });
+%}
+
+### 400 - email is empty
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is empty ");
+    });
+%}
+
+### 400 - email is blank (spaces only)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": " ",
+  "password": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is blank ");
+    });
+%}
+
+### 400 - email is too short (5)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "asd@b",
+  "password": "{{min_password}}{{$timestamp}}"
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is too short");
+    });
+%}
+
+### 400 - email too long (over 254 characters)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}a",
+  "password": "{{min_password}}"
+}
+
+> {%
+    client.test("Cannot login since email is too long", function() {
+        client.assert(response.status === 400, "Response status is 400 since email is too long");
+    });
+%}
+
+### 400 - password is empty
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": ""
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is empty ");
+    });
+%}
+
+### 400 - password is blank (spaces only)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "  "
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is blank ");
+    });
+%}
+
+### 400 - password is too short (4)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "aaaa"
+}
+
+> {%
+    client.test("Cannot login", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is too short");
+    });
+%}
+
+### 400 - password too long (over 20 characters)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "{{max_password}}a"
+}
+
+> {%
+    client.test("Cannot login since password is too long", function() {
+        client.assert(response.status === 400, "Response status is 400 since password is too long");
+    });
+%}
+
+### 400 - password contains invalid character
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{max_email}}",
+  "password": "abc 12"
+}
+
+> {%
+    client.test("Cannot login since password contains invalid character", function() {
+        client.assert(response.status === 400, "Response status is 400 since password does not match pattern");
+    });
+%}
+
+###

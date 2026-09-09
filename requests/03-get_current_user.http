@@ -1,0 +1,80 @@
+@baseUrl = http://localhost:8080
+@expiredToken = eyJraWQiOiJCWjZZSDV1b2RSZnk5UGwyZ3owNndVdGJvNGdqNkFrWUs1Vm1waUpRRW1FIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIzMSIsImV4cCI6MTc4ODg4Mzk0NiwiaWF0IjoxNzg4ODc2NzQ2LCJlbWFpbCI6InRpbTExMTQxQG1haWwucnUifQ.SumpjWOHawj_OSwqXb-kVDWc_JcDTGEqNDZ-9VkDxqU
+
+### 401 - Cannot get user with corrupted JWT
+GET {{baseUrl}}/user
+Authorization: Bearer eyJraWQiOiJCWjZZSDV1b2RSZnk5UGwyZ3owNndVdGJvNGdqNkFrWUs1Vm1waUpRRW1FIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIzMSIsImV4cCI6MTc4ODg4Mzk0NiwiaWF0IjoxNzg4ODc2NzQ2LCJlbWFpbCI6InRpbTExMTQxQG1haWwucnUifQ.SumpjWOHawj_OSwqXb-kVDWc_JcDTGEqNDZ-1234567
+
+> {%
+    client.test("Cannot get user", function() {
+        client.assert(response.status === 401, "Response status is 401 since token is corrupted");
+    });
+%}
+
+### 401 - Cannot get current user without JWT
+GET {{baseUrl}}/user
+
+> {%
+    client.test("Cannot get current user without JWT", function() {
+        client.assert(response.status === 401, "Response status is 401 since JWT is missing");
+    });
+%}
+
+### Prereg phase 1 - Successfully create a user for future user getting
+### min/max email = 6/254 (email is unique), min/max pass = 5/20 (password is no unique)
+POST {{baseUrl}}/user
+Content-Type: application/json
+
+{
+  "email": "tim_{{$timestamp}}@mail.ru",
+  "password": "pass_{{$timestamp}}",
+  "passwordConfirmation": "pass_{{$timestamp}}"
+}
+> {%
+    client.global.set("test_id", response.body.id);
+    client.global.set("test_email", response.body.email);
+
+    client.test("Successfully create a user", function () {
+        const body = response.body;
+        const testId = client.global.get("test_id");
+        const testEmail = client.global.get("test_email");
+        const authHeader = response.headers.valueOf("Authorization");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.global.set("token", authHeader.substring("Bearer ".length));
+
+        client.assert(response.status === 200, "Response status is 200");
+        client.assert(body.id === Number(testId), "Server should return id of user");
+        client.assert(body.email === testEmail, "Server should return email of user");
+    });
+%}
+
+### 200 - Successfully got user
+GET {{baseUrl}}/user
+Authorization: Bearer {{token}}
+
+> {%
+    client.test("Successfully got a user", function () {
+        const body = response.body;
+        const testId = client.global.get("test_id");
+        const testEmail = client.global.get("test_email");
+
+        client.assert(response.status === 200, "Response status is 200");
+        client.assert(body.id === Number(testId), "Server should return id of user");
+
+        client.assert(body.email === testEmail, "Server should return email of user");
+    });
+%}
+
+### 401 - Cannot get user with expired JWT
+GET {{baseUrl}}/user
+Authorization: Bearer {{expiredToken}}
+
+> {%
+    client.test("Cannot get user", function() {
+        client.assert(response.status === 401, "Response status is 401 since token is expired");
+    });
+%}
+
+###
