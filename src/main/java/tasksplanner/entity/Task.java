@@ -3,6 +3,7 @@ package tasksplanner.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -19,20 +20,29 @@ public class Task {
     @Column(name = "task_id")
     private Long id;
 
+    @Getter
+    @Setter
     @Column(name = "header", length = 60, nullable = false)
     private String header;
 
+    @Getter
+    @Setter
     @Column(name = "text", nullable = false)
     private String text;
 
+    @Getter
+    @Setter
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "task_status", nullable = false)
     private TaskStatus taskStatus;
 
+    @Getter
+    @Setter
     @Column(name = "completion_time")
     private OffsetDateTime finishedAt;
 
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     private User taskOwner;
