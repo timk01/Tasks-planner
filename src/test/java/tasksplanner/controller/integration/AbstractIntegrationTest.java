@@ -1,11 +1,9 @@
 package tasksplanner.controller.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -13,13 +11,12 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import tasksplanner.repository.UserRepository;
 import tasksplanner.request.UserRegisterRequest;
+import tasksplanner.response.UserResponse;
 import tools.jackson.databind.json.JsonMapper;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,17 +67,27 @@ public class AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
+                .andExpect(header().string(
+                        HttpHeaders.AUTHORIZATION, org.hamcrest.Matchers.startsWith("Bearer ")
+                ))
                 .andReturn();
+
+        UserResponse response = jsonMapper.readValue(
+                result.getResponse().getContentAsString(),
+                UserResponse.class
+        );
 
         String authorization = result.getResponse()
                 .getHeader(HttpHeaders.AUTHORIZATION);
 
-        return new RegisteredUser(email, password, authorization);
+        return new RegisteredUser(response.id(), response.email(), password, authorization);
     }
 
     protected record RegisteredUser(
+            Long id,
             String email,
             String password,
             String authorization
-    ) {}
+    ) {
+    }
 }

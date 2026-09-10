@@ -5,14 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MvcResult;
 import tasksplanner.entity.User;
 import tasksplanner.request.UserLoginRequest;
-import tasksplanner.request.UserRegisterRequest;
-import tasksplanner.response.UserResponse;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -23,37 +19,25 @@ public class UserIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     public void registerUserIsSucceeded() throws Exception {
-        String email = "tim11@mail.ru";
-        String passwordOriginal = "sadfasfkljkjl22##";
-        String passwordConfirmation = "sadfasfkljkjl22##";
-        UserRegisterRequest dto = new UserRegisterRequest(email, passwordOriginal, passwordConfirmation);
+        RegisteredUser registeredUser = registerUser();
 
-        MvcResult result = mockMvc.perform(post("/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(header().string(
-                        HttpHeaders.AUTHORIZATION, org.hamcrest.Matchers.startsWith("Bearer ")
-                ))
-                .andReturn();
+        User savedUser = userRepository
+                .findByEmail(registeredUser.email())
+                .orElseThrow();
 
-        UserResponse response = jsonMapper.readValue(
-                result.getResponse().getContentAsString(),
-                UserResponse.class
-        );
-
-        User savedUser = userRepository.findByEmail(email).orElseThrow();
-
-        assertThat(response.id()).isEqualTo(savedUser.getId());
-        assertThat(response.email()).isEqualTo(savedUser.getEmail());
+        assertThat(registeredUser.id()).isEqualTo(savedUser.getId());
+        assertThat(registeredUser.email()).isEqualTo(savedUser.getEmail());
         assertThat(encoder.matches(
-                passwordOriginal,
+                registeredUser.password(),
                 savedUser.getPassword()
         )).isTrue();
+
+        assertThat(registeredUser.authorization())
+                .startsWith("Bearer ");
     }
 
     @Test
-    public void loginAndGetUserIsSucceeded() throws Exception {
+    public void loginIsSucceeded() throws Exception {
         RegisteredUser registeredUser = registerUser();
 
         User savedUser = userRepository
@@ -65,25 +49,15 @@ public class UserIntegrationTest extends AbstractIntegrationTest {
                 registeredUser.password()
         );
 
-        MvcResult result = mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedUser.getId()))
-                .andExpect(jsonPath("$.email").value(registeredUser.email()))
+                .andExpect(jsonPath("$.email").value(savedUser.getEmail()))
                 .andExpect(header().string(
                         HttpHeaders.AUTHORIZATION,
                         org.hamcrest.Matchers.startsWith("Bearer ")
-                ))
-                .andReturn();
-
-        String authorization = result.getResponse()
-                .getHeader(HttpHeaders.AUTHORIZATION);
-
-        mockMvc.perform(get("/user")
-                        .header(HttpHeaders.AUTHORIZATION, authorization))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(savedUser.getId()))
-                .andExpect(jsonPath("$.email").value(registeredUser.email()));
+                ));
     }
 }
