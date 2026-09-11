@@ -49,10 +49,24 @@ public class TaskController {
     ) {
         long userId = Long.parseLong(Objects.requireNonNull(jwt.getSubject()));
 
-        TaskResponse updatedTask = service.updateTask(userId, taskId, taskUpdateRequest);
+        TaskResponse updatedTask = service.updateTask(taskId, userId, taskUpdateRequest);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(updatedTask);
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> delete(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long taskId
+    ) {
+        long userId = Long.parseLong(Objects.requireNonNull(jwt.getSubject()));
+
+        service.deleteTask(taskId, userId);
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

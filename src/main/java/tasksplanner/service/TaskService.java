@@ -58,9 +58,13 @@ public class TaskService {
      */
 
     @Transactional
-    public TaskResponse updateTask(Long userId, Long taskId, TaskUpdateRequest request) {
+    public TaskResponse updateTask(Long taskId, Long userId, TaskUpdateRequest request) {
         Task foundTask = taskRepository.findByIdAndTaskOwner_Id(taskId, userId)
                 .orElseThrow(() -> new TaskIsNotFoundException("Task is not found"));
+
+        if (hasNoChanges(request, foundTask)) {
+            return mapper.toTaskResponse(foundTask);
+        }
 
         if (request.header() != null) {
             foundTask.setHeader(request.header());
@@ -77,6 +81,13 @@ public class TaskService {
         Task updatedTask = taskRepository.save(foundTask);
 
         return mapper.toTaskResponse(updatedTask);
+    }
+
+    private boolean hasNoChanges(TaskUpdateRequest request, Task foundTask) {
+        return request.header() == null
+                && request.text() == null
+                && (request.status() == null
+                || request.status() == foundTask.getTaskStatus());
     }
 
     private void updateStatusAndTime(Task foundTask, TaskUpdateRequest request) {
@@ -122,6 +133,15 @@ public class TaskService {
                     );
                 }
             }
+        }
+    }
+
+    @Transactional
+    public void deleteTask(Long taskId, Long userId) {
+        long l = taskRepository.deleteByIdAndTaskOwner_Id(taskId, userId);
+
+        if (l == 0) {
+            throw new TaskIsNotFoundException("Task is not found");
         }
     }
 }
