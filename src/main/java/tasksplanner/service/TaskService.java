@@ -12,7 +12,7 @@ import tasksplanner.exception.managed.TaskIsNotFoundException;
 import tasksplanner.mapper.TaskMapper;
 import tasksplanner.repository.TaskRepository;
 import tasksplanner.repository.UserRepository;
-import tasksplanner.request.TaskRequest;
+import tasksplanner.request.TaskCreateRequest;
 import tasksplanner.request.TaskUpdateRequest;
 import tasksplanner.response.TaskResponse;
 
@@ -29,7 +29,7 @@ public class TaskService {
     private final TaskMapper mapper;
 
     @Transactional
-    public TaskResponse createTask(Long userId, TaskRequest request) {
+    public TaskResponse createTask(Long userId, TaskCreateRequest request) {
         User referenceById = userRepository.getReferenceById(userId);
 
         Task savedTask = taskRepository.save(
@@ -50,6 +50,20 @@ public class TaskService {
         );
 
         return mapper.toTaskResponse(savedTask);
+    }
+
+    public List<TaskResponse> getUserTasks(Long userId) {
+        List<Task> tasks = taskRepository.findAllByTaskOwner_Id(userId);
+
+        List<TaskResponse> tasksResponse = mapper.toTaskResponseList(tasks);
+
+        log.debug(
+                "Tasks retrieved: userId={}, count={}",
+                userId,
+                tasks.size()
+        );
+
+        return tasksResponse;
     }
 
     /**
@@ -166,20 +180,6 @@ public class TaskService {
                 taskId,
                 userId
         );
-    }
-
-    public List<TaskResponse> getUserTasks(Long userId) {
-        List<Task> tasks = taskRepository.findAllByTaskOwner_Id(userId);
-
-        List<TaskResponse> tasksResponse = mapper.toTaskResponseList(tasks);
-
-        log.debug(
-                "Tasks retrieved: userId={}, count={}",
-                userId,
-                tasks.size()
-        );
-
-        return tasksResponse;
     }
 }
 

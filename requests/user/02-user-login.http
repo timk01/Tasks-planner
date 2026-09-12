@@ -93,7 +93,7 @@ Content-Type: application/json
     });
 %}
 
-### 401 - Cannot login since password is incorrect
+### 401 - Cannot login when password does not match (reg/login)
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 

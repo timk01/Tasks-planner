@@ -2,19 +2,14 @@ package tasksplanner.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import tasksplanner.request.TaskRequest;
+import tasksplanner.request.TaskCreateRequest;
 import tasksplanner.request.TaskUpdateRequest;
-import tasksplanner.request.UserLoginRequest;
 import tasksplanner.response.TaskResponse;
-import tasksplanner.response.UserResponse;
 import tasksplanner.service.TaskService;
 
 import java.util.List;
@@ -30,7 +25,7 @@ public class TaskController {
     @PostMapping()
     public ResponseEntity<TaskResponse> create(
             @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody TaskRequest taskRequest
+            @Valid @RequestBody TaskCreateRequest taskRequest
     ) {
         long userId = Long.parseLong(Objects.requireNonNull(jwt.getSubject()));
 
@@ -41,6 +36,18 @@ public class TaskController {
                 .body(savedTask);
     }
 
+    @GetMapping()
+    public ResponseEntity<List<TaskResponse>> getTasks(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        long userId = Long.parseLong(Objects.requireNonNull(jwt.getSubject()));
+
+        List<TaskResponse> tasks = service.getUserTasks(userId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(tasks);
+    }
 
     @PatchMapping("/{taskId}")
     public ResponseEntity<TaskResponse> update(
@@ -69,18 +76,5 @@ public class TaskController {
         return ResponseEntity
                 .noContent()
                 .build();
-    }
-
-    @GetMapping()
-    public ResponseEntity<List<TaskResponse>> getTasks(
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        long userId = Long.parseLong(Objects.requireNonNull(jwt.getSubject()));
-
-        List<TaskResponse> tasks = service.getUserTasks(userId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(tasks);
     }
 }

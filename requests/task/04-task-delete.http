@@ -1,0 +1,141 @@
+@baseUrlUser = http://localhost:8080
+@baseUrlTask = http://localhost:8080/tasks
+@expiredToken = eyJraWQiOiJCWjZZSDV1b2RSZnk5UGwyZ3owNndVdGJvNGdqNkFrWUs1Vm1waUpRRW1FIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIzMSIsImV4cCI6MTc4ODg4Mzk0NiwiaWF0IjoxNzg4ODc2NzQ2LCJlbWFpbCI6InRpbTExMTQxQG1haWwucnUifQ.SumpjWOHawj_OSwqXb-kVDWc_JcDTGEqNDZ-9VkDxqU
+@taskId=1
+
+### 401 - Cannot delete task with corrupted JWT
+DELETE {{baseUrlTask}}/{{taskId}}
+Authorization: Bearer eyJraWQiOiJCWjZZSDV1b2RSZnk5UGwyZ3owNndVdGJvNGdqNkFrWUs1Vm1waUpRRW1FIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIzMSIsImV4cCI6MTc4ODg4Mzk0NiwiaWF0IjoxNzg4ODc2NzQ2LCJlbWFpbCI6InRpbTExMTQxQG1haWwucnUifQ.SumpjWOHawj_OSwqXb-kVDWc_JcDTGEqNDZ-1234567
+
+> {%
+    client.test("Cannot delete task", function() {
+        client.assert(response.status === 401, "Response status is 401 since token is corrupted");
+    });
+%}
+
+### 401 - Cannot delete task without JWT
+DELETE {{baseUrlTask}}/{{taskId}}
+
+> {%
+    client.test("Cannot delete task without JWT", function() {
+        client.assert(response.status === 401, "Response status is 401 since JWT is missing");
+    });
+%}
+
+### 401 - Cannot delete task with expired JWT
+DELETE {{baseUrlTask}}/{{taskId}}
+Authorization: Bearer {{expiredToken}}
+
+> {%
+    client.test("Cannot create task without JWT", function() {
+        client.assert(response.status === 401, "Response status is 401 since JWT is expired");
+    });
+%}
+
+### Prereg phase 1 - Successfully create a user for future work with task
+POST {{baseUrlUser}}/user
+Content-Type: application/json
+
+{
+  "email": "tim_{{$timestamp}}@mail.ru",
+  "password": "pass_{{$timestamp}}",
+  "passwordConfirmation": "pass_{{$timestamp}}"
+}
+
+> {%
+    client.global.set("test_id", response.body.id);
+    client.global.set("test_email", response.body.email);
+
+    const email = response.body.email;
+    const runId = email.substring("tim_".length, email.indexOf("@"));
+    client.global.set("test_password", "pass_" + runId);
+
+    const authHeader = response.headers.valueOf("Authorization");
+
+    client.test("Successfully create a user", function () {
+        const body = response.body;
+        const testId = client.global.get("test_id");
+        const testEmail = client.global.get("test_email");
+
+        client.assert(response.status === 200, "Response status is 200");
+        client.assert(body.id === Number(testId), "Server should return id of user");
+        client.assert(body.email === testEmail, "Server should return email of user");
+
+        client.assert(authHeader != null, "Authorization header should exist");
+        client.assert(authHeader.startsWith("Bearer "), "Authorization header should contain Bearer token");
+        client.assert(authHeader.substring("Bearer ".length).length > 0, "JWT should not be empty");
+    });
+
+    client.global.set(
+        "test_token",
+        authHeader.substring("Bearer ".length)
+    );
+
+    client.global.set(
+        "test_header",
+        "header_" + runId
+    );
+
+    client.global.set(
+        "test_text",
+        "text_" + runId
+    );
+
+    client.global.set(
+        "max_string",
+        ("string_" + runId + "x".repeat(60)).substring(0, 60)
+    );
+%}
+
+### phase 2 - Successfully create task
+POST {{baseUrlTask}}
+Content-Type: application/json
+Authorization: Bearer {{test_token}}
+
+{
+  "header": "{{test_header}}",
+  "text": "{{test_text}}"
+}
+
+> {%
+    client.test("Successfully created a task", function () {
+        const body = response.body;
+        const testHeader = client.global.get("test_header");
+        const testText = client.global.get("test_text");
+        const userId = Number(client.global.get("test_id"));
+
+        client.assert(response.status === 201, "Response status is 201");
+
+        client.assert(body.taskId != null, "Task id should exist");
+        client.assert(body.header === testHeader, "Header should match");
+        client.assert(body.text === testText, "Text should match");
+        client.assert(body.status === "CREATED", "Status should be CREATED");
+        client.assert(body.finishedAt === null, "FinishedAt should be null");
+        client.assert(body.ownerId === userId, "Owner id should match");
+    });
+    client.global.set("test_task_id", response.body.taskId);
+%}
+
+### 204 - delete existed task
+DELETE {{baseUrlTask}}/{{test_task_id}}
+Authorization: Bearer {{test_token}}
+
+> {%
+    client.test("Successfully deleted task", function() {
+        client.assert(response.status === 204, "Response status is 204 since task is deleted");
+    });
+%}
+
+### 401 - Cannot delete task since where is no task with such ID
+### Ownership scenario is covered in Java integration tests:
+### another user cannot delete a task owned by a different user (404).
+DELETE {{baseUrlTask}}/{{test_task_id}}
+Authorization: Bearer {{test_token}}
+
+> {%
+    client.test("Cannot delete task", function() {
+        client.assert(response.status === 404, "Response status is 404 since task is not found");
+    });
+%}
+
+####
