@@ -1,9 +1,7 @@
 package tasksplanner.controller.webmvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,5 +37,11 @@ class AuthControllerWebMvcTest {
                 .andExpect(jsonPath("$.id").value(userResponse.id()))
                 .andExpect(jsonPath("$.email").exists())
                 .andExpect(jsonPath("$.email").value(email));
+    }
+
+    @Test
+    public void getUserFailedDueToNoTokenProvided() throws Exception {
+        mockMvc.perform(get("/user"))
+                .andExpect(status().isUnauthorized());
     }
 }
