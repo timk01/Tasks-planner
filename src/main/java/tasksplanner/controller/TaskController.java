@@ -17,6 +17,7 @@ import tasksplanner.response.TaskResponse;
 import tasksplanner.response.UserResponse;
 import tasksplanner.service.TaskService;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -68,5 +69,18 @@ public class TaskController {
         return ResponseEntity
                 .noContent()
                 .build();
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<TaskResponse>> getTasks(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        long userId = Long.parseLong(Objects.requireNonNull(jwt.getSubject()));
+
+        List<TaskResponse> tasks = service.getUserTasks(userId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(tasks);
     }
 }

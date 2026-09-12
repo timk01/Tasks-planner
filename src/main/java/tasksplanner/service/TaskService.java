@@ -1,6 +1,7 @@
 package tasksplanner.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tasksplanner.entity.Task;
@@ -16,7 +17,9 @@ import tasksplanner.request.TaskUpdateRequest;
 import tasksplanner.response.TaskResponse;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskService {
@@ -26,17 +29,24 @@ public class TaskService {
     private final TaskMapper mapper;
 
     @Transactional
-    public TaskResponse createTask(Long userId, TaskRequest taskRequest) {
+    public TaskResponse createTask(Long userId, TaskRequest request) {
         User referenceById = userRepository.getReferenceById(userId);
 
         Task savedTask = taskRepository.save(
                 new Task(
-                        taskRequest.header(),
-                        taskRequest.text(),
+                        request.header(),
+                        request.text(),
                         TaskStatus.CREATED,
                         null,
                         referenceById
                 )
+        );
+
+        log.debug(
+                "Task saved: createdTaskId={}, userId={}, request={}",
+                savedTask.getId(),
+                userId,
+                request
         );
 
         return mapper.toTaskResponse(savedTask);
@@ -51,8 +61,8 @@ public class TaskService {
      * (CREATED - CREATED, IN_PROCESS - IN_PROCESS, FINISHED - FINISHED),
      * remain in same status.
      *
-     * @param userId
      * @param taskId
+     * @param userId
      * @param request
      * @return
      */
@@ -79,6 +89,13 @@ public class TaskService {
         }
 
         Task updatedTask = taskRepository.save(foundTask);
+
+        log.debug(
+                "Task updated: taskId={}, userId={}, request={}",
+                taskId,
+                userId,
+                request
+        );
 
         return mapper.toTaskResponse(updatedTask);
     }
@@ -143,6 +160,26 @@ public class TaskService {
         if (l == 0) {
             throw new TaskIsNotFoundException("Task is not found");
         }
+
+        log.info(
+                "Task deleted: taskId={}, userId={}",
+                taskId,
+                userId
+        );
+    }
+
+    public List<TaskResponse> getUserTasks(Long userId) {
+        List<Task> tasks = taskRepository.findAllByTaskOwner_Id(userId);
+
+        List<TaskResponse> tasksResponse = mapper.toTaskResponseList(tasks);
+
+        log.debug(
+                "Tasks retrieved: userId={}, count={}",
+                userId,
+                tasks.size()
+        );
+
+        return tasksResponse;
     }
 }
 
