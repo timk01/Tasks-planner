@@ -138,7 +138,7 @@ public class TaskService {
 
     @Transactional
     public void deleteTask(Long taskId, Long userId) {
-        long l = taskRepository.deleteByIdAndTaskOwner_Id(taskId, userId);
+        long l = taskRepository.deleteByTaskIdAndOwnerId(taskId, userId);
 
         if (l == 0) {
             throw new TaskIsNotFoundException("Task is not found");
