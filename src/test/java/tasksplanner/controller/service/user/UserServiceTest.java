@@ -1,4 +1,4 @@
-package tasksplanner.controller.service;
+package tasksplanner.controller.service.user;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

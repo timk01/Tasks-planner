@@ -1,7 +1,8 @@
-package tasksplanner.controller.integration;
+package tasksplanner.controller.integration.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+import tasksplanner.controller.integration.AbstractIntegrationTest;
 
 import java.util.UUID;
 
@@ -30,6 +31,4 @@ public class AuthIntegrationTest extends AbstractIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, registeredUser.authorization() + UUID.randomUUID()))
                 .andExpect(status().isUnauthorized());
     }
-
-
 }

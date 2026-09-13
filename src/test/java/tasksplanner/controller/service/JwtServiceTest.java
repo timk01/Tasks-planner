@@ -14,11 +14,13 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import tasksplanner.response.UserResponse;
 import tasksplanner.security.JwtService;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -29,6 +31,9 @@ public class JwtServiceTest {
 
     @Mock
     private JwtEncoder encoder;
+
+    @Mock
+    private Clock clock;
 
     @Captor
     private ArgumentCaptor<JwtEncoderParameters> params;
@@ -53,6 +58,7 @@ public class JwtServiceTest {
                 )
         );
 
+        when(clock.instant()).thenReturn(issued);
         when(encoder.encode(any(JwtEncoderParameters.class))).thenReturn(expected);
 
         Jwt actual = service.generateToken(user);
@@ -68,7 +74,8 @@ public class JwtServiceTest {
 
         assertThat(claims.getIssuedAt()).isNotNull();
         assertThat(claims.getExpiresAt()).isNotNull();
-        assertThat(Duration.between(claims.getIssuedAt(), claims.getExpiresAt())).isEqualTo(Duration.ofHours(2));
+        assertThat(Duration.between(claims.getIssuedAt(), claims.getExpiresAt()))
+                .isEqualTo(Duration.ofHours(2));
 
         assertThat(actual).isEqualTo(expected);
     }

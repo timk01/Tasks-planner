@@ -1,4 +1,4 @@
-package tasksplanner.controller.webmvc;
+package tasksplanner.controller.webmvc.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

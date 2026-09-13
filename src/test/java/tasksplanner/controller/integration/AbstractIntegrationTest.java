@@ -12,6 +12,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import tasksplanner.repository.TaskRepository;
 import tasksplanner.repository.UserRepository;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
@@ -32,6 +33,8 @@ public class AbstractIntegrationTest {
     @Autowired
     protected UserRepository userRepository;
 
+    @Autowired
+    protected TaskRepository taskRepository;
     protected static PostgreSQLContainer postgres =
             new PostgreSQLContainer("postgres:15-alpine");
 
@@ -53,6 +56,7 @@ public class AbstractIntegrationTest {
 
     @AfterEach
     public void tearDown() {
+        taskRepository.deleteAll();
         userRepository.deleteAll();
     }
 
