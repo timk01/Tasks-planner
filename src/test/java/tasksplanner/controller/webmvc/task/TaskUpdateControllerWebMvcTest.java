@@ -12,27 +12,24 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tasksplanner.controller.TaskController;
 import tasksplanner.entity.TaskStatus;
-import tasksplanner.request.TaskCreateRequest;
 import tasksplanner.request.TaskUpdateRequest;
 import tasksplanner.response.TaskResponse;
 import tasksplanner.service.TaskService;
 
-import java.util.List;
 import java.util.stream.Stream;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TaskController.class)
 class TaskUpdateControllerWebMvcTest {
-    private static final String VALID_TEXT = "task_number_N";
-    private static final String VALID_HEADER = "task_number_N_description";
+    private static final String VALID_HEADER = "task_number_N";
+    private static final String VALID_TEXT = "task_number_N_description";
 
     @Autowired
     MockMvc mockMvc;
@@ -127,7 +124,7 @@ class TaskUpdateControllerWebMvcTest {
     }
 
     @Test
-    public void  updateTaskFailedDueToMissingBody()
+    public void updateTaskFailedDueToMissingBody()
             throws Exception {
         mockMvc.perform(patch("/tasks/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,7 +134,7 @@ class TaskUpdateControllerWebMvcTest {
     }
 
     @Test
-    public void  updateTaskFailedDueToMalformedJson()
+    public void updateTaskFailedDueToMalformedJson()
             throws Exception {
         String malformedJson = """
                 {

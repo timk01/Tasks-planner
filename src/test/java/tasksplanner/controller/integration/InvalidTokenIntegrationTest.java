@@ -18,6 +18,11 @@ public class InvalidTokenIntegrationTest extends AbstractIntegrationTest {
     @MockitoBean
     private Clock clock;
 
+    /**
+     * Task endpoints use the same JWT authentication and authorization configuration.
+     * Hence, this test verifies common wrong-token behaviour (not expired, just wrong one!)
+     * for all CRUD-endpoints for tasks
+     */
     @Test
     public void getTasksFailedDueToMalformedToken() throws Exception {
         when(clock.instant()).thenReturn(Instant.now());

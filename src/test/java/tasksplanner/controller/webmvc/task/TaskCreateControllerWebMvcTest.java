@@ -28,8 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TaskController.class)
 class TaskCreateControllerWebMvcTest {
-    private static final String VALID_TEXT = "task_number_N";
-    private static final String VALID_HEADER = "task_number_N_description";
+    private static final String VALID_HEADER = "task_number_N";
+    private static final String VALID_TEXT = "task_number_N_description";
 
     @Autowired
     MockMvc mockMvc;
