@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import tasksplanner.dto.EmailSendingTask;
 import tasksplanner.entity.User;
 import tasksplanner.exception.managed.InvalidLoginDataException;
 import tasksplanner.exception.managed.EmailAlreadyExistsException;
@@ -21,6 +22,7 @@ public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder encoder;
+    private final KafkaService kafkaService;
 
     public UserResponse register(UserRegisterRequest userRegisterDto) {
         if (repository.existsByEmail(userRegisterDto.email())) {
@@ -34,6 +36,14 @@ public class UserService {
                 "User is registered: userId={}, email={}",
                 user.getId(),
                 user.getEmail()
+        );
+
+        kafkaService.sendMessage(
+                new EmailSendingTask(
+                        user.getEmail(),
+                        "greetings",
+                        "Welcome aboard!"
+                )
         );
 
         return new UserResponse(user.getId(), user.getEmail());

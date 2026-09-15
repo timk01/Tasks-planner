@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
+import tasksplanner.dto.EmailSendingTask;
 import tasksplanner.entity.User;
 import tasksplanner.exception.managed.EmailAlreadyExistsException;
 import tasksplanner.exception.managed.InvalidLoginDataException;
@@ -16,6 +17,7 @@ import tasksplanner.repository.UserRepository;
 import tasksplanner.request.UserLoginRequest;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
+import tasksplanner.service.KafkaService;
 import tasksplanner.service.UserService;
 
 import java.util.Optional;
@@ -38,9 +40,14 @@ public class UserServiceTest {
     @Mock
     private PasswordEncoder encoder;
 
+    @Mock
+    private KafkaService kafkaService;
+
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
 
+    @Captor
+    private ArgumentCaptor<EmailSendingTask> emailTaskCaptor;
 
     @Test
     public void registerIsSucceeded() {
@@ -64,12 +71,19 @@ public class UserServiceTest {
         verify(repository, times(1)).existsByEmail(email);
         verify(encoder, times(1)).encode(passwordOriginal);
         verify(repository, times(1)).save(userArgumentCaptor.capture());
+        verify(kafkaService, times(1)).sendMessage(emailTaskCaptor.capture());
 
         User captorValue = userArgumentCaptor.getValue();
 
         assertThat(captorValue).isNotNull();
         assertThat(captorValue.getEmail()).isEqualTo(email);
         assertThat(captorValue.getPassword()).isEqualTo(passwordHashed);
+
+        EmailSendingTask emailTask = emailTaskCaptor.getValue();
+
+        assertThat(emailTask.recipient()).isEqualTo(email);
+        assertThat(emailTask.subject()).isEqualTo("greetings");
+        assertThat(emailTask.text()).isEqualTo("Welcome aboard!");
 
         assertThat(actual).isNotNull();
         assertThat(actual.id()).isEqualTo(expected.id());

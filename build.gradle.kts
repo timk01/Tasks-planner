@@ -54,6 +54,9 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    //kafka-kakaffka
+    testImplementation("org.testcontainers:testcontainers-kafka")
 }
 
 tasks.withType<Test> {
