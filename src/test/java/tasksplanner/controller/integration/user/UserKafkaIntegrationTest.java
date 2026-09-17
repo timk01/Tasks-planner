@@ -1,8 +1,10 @@
 package tasksplanner.controller.integration.user;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,15 +13,12 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.kafka.KafkaContainer;
 import tasksplanner.controller.integration.AbstractIntegrationTest;
 import tasksplanner.dto.EmailSendingTask;
-import tasksplanner.entity.User;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class UserKafkaIntegrationTest extends AbstractIntegrationTest {
 
@@ -55,7 +54,7 @@ public class UserKafkaIntegrationTest extends AbstractIntegrationTest {
 
             ConsumerRecords<String, String> records =
                     consumer.poll(Duration.ofSeconds(5));
-
+            assertThat(records.isEmpty()).isFalse();
             ConsumerRecord<String, String> record =
                     records.iterator().next();
 
@@ -95,6 +94,7 @@ public class UserKafkaIntegrationTest extends AbstractIntegrationTest {
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class
         );
+
         return properties;
     }
 }
