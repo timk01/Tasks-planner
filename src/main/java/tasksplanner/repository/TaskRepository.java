@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import tasksplanner.entity.Task;
 import tasksplanner.entity.TaskStatus;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,17 +23,17 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     public static final String FIND_ALL_FINISHED_TASKS
             = """
             SELECT t FROM Task t
-            JOIN FETCH t.user
-            WHERE t.status = :status
+            JOIN FETCH t.taskOwner
+            WHERE t.taskStatus = :taskStatus
             AND t.finishedAt >= :from
-            AND t.finished < :to
+            AND t.finishedAt < :to
             """;
 
     public static final String FIND_ALL_UNFINISHED_TASKS
             = """
             SELECT t FROM Task t
-            JOIN FETCH t.user
-            WHERE t.status != :status
+            JOIN FETCH t.taskOwner
+            WHERE t.taskStatus != :taskStatus
             """;
 
     Optional<Task> findByIdAndTaskOwner_Id(Long id, Long taskOwnerId);
@@ -49,12 +49,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query(FIND_ALL_FINISHED_TASKS)
     List<Task> findAllFinishedTasksByOwners(
-            @Param("status") TaskStatus status,
-            @Param("from") Instant from,
-            @Param("to") Instant to);
+            @Param("taskStatus") TaskStatus taskStatus,
+            @Param("from") OffsetDateTime from,
+            @Param("to") OffsetDateTime to);
 
     @Query(FIND_ALL_UNFINISHED_TASKS)
     List<Task> findAllUnfinishedTasksByOwners(
-            @Param("status") TaskStatus status
+            @Param("taskStatus") TaskStatus taskStatus
     );
 }

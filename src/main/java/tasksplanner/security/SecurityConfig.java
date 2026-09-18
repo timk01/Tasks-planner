@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/user").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/tasks/getScheduledTasks" //temp
+                        ).permitAll()
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer(
                         oauth -> oauth

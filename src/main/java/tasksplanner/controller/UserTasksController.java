@@ -34,7 +34,7 @@ public class UserTasksController {
             //в наш и хватаем защищенные данные просто так.
 
             @RequestParam("from")
-            @NotBlank
+            //@NotBlank
 /*            @Pattern(
                     regexp = PATH_POST_STRICT_VALIDATOR_REGEXP,
                     message = WRONG_PATH
@@ -43,7 +43,7 @@ public class UserTasksController {
                     Instant from,
 
             @RequestParam("to")
-            @NotBlank
+            //@NotBlank
 /*            @Pattern(
                     regexp = PATH_POST_STRICT_VALIDATOR_REGEXP,
                     message = WRONG_PATH

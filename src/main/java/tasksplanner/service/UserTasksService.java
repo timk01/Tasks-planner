@@ -11,6 +11,8 @@ import tasksplanner.repository.TaskRepository;
 import tasksplanner.response.TaskResponse;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +27,11 @@ public class UserTasksService {
 
     @Transactional
     public List<UserTasks> getUserTasks(Instant from, Instant to) {
+        OffsetDateTime fromOffset = from.atOffset(ZoneOffset.UTC);
+        OffsetDateTime toOffset = to.atOffset(ZoneOffset.UTC);
+
         List<Task> finishedTasks
-                = taskRepository.findAllFinishedTasksByOwners(TaskStatus.FINISHED, from, to);
+                = taskRepository.findAllFinishedTasksByOwners(TaskStatus.FINISHED, fromOffset, toOffset);
 
         List<Task> unfinishedTasks
                 = taskRepository.findAllUnfinishedTasksByOwners(TaskStatus.FINISHED);
@@ -57,7 +62,7 @@ public class UserTasksService {
             );
 
             TaskResponse taskResponse = mapper.toTaskResponse(task);
-            if (finished == true) {
+            if (finished) {
                 userTasks.get(ownerId).finishedTasks().add(taskResponse);
             } else {
                 userTasks.get(ownerId).unfinishedTasks().add(taskResponse);
