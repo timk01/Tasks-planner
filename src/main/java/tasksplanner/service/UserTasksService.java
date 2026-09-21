@@ -12,6 +12,7 @@ import tasksplanner.response.TaskResponse;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,13 +23,15 @@ import java.util.Map;
 @Service
 public class UserTasksService {
 
+    private static final ZoneId MOSCOW_ZONE = ZoneId.of("Europe/Moscow");
+
     private final TaskRepository taskRepository;
     private final TaskMapper mapper;
 
     @Transactional
     public List<UserTasks> getUserTasks(Instant from, Instant to) {
-        OffsetDateTime fromOffset = from.atOffset(ZoneOffset.UTC);
-        OffsetDateTime toOffset = to.atOffset(ZoneOffset.UTC);
+        OffsetDateTime fromOffset = from.atZone(MOSCOW_ZONE).toOffsetDateTime();
+        OffsetDateTime toOffset = to.atZone(MOSCOW_ZONE).toOffsetDateTime();
 
         List<Task> finishedTasks
                 = taskRepository.findAllFinishedTasksByOwners(TaskStatus.FINISHED, fromOffset, toOffset);

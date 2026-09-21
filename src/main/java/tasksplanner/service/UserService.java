@@ -38,8 +38,6 @@ public class UserService {
                 user.getEmail()
         );
 
-        //disabled for planner test ttemporarily
-/*
         kafkaService.sendMessage(
                 new EmailSendingTask(
                         user.getEmail(),
@@ -47,7 +45,6 @@ public class UserService {
                         "Welcome aboard!"
                 )
         );
-*/
 
         return new UserResponse(user.getId(), user.getEmail());
     }
