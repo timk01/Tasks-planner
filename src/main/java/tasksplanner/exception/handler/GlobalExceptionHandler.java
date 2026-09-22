@@ -9,10 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import tasksplanner.exception.managed.BaseAppException;
-import tasksplanner.exception.managed.EmailAlreadyExistsException;
-import tasksplanner.exception.managed.IllegalTaskStatusChangeException;
-import tasksplanner.exception.managed.TaskIsNotFoundException;
+import tasksplanner.exception.managed.*;
 import tasksplanner.response.ErrorResponse;
 
 import java.util.HashMap;
@@ -26,10 +23,12 @@ public class GlobalExceptionHandler {
             = new HashMap<>();
 
     static {
-        KNOWN_EXCEPTIONS_STATUS_MAP.put(EmailAlreadyExistsException.class, HttpStatus.CONFLICT);
         KNOWN_EXCEPTIONS_STATUS_MAP.put(IllegalTaskStatusChangeException.class, HttpStatus.BAD_REQUEST);
+        KNOWN_EXCEPTIONS_STATUS_MAP.put(IllegalDateException.class, HttpStatus.BAD_REQUEST);
 
         KNOWN_EXCEPTIONS_STATUS_MAP.put(TaskIsNotFoundException.class, HttpStatus.NOT_FOUND);
+
+        KNOWN_EXCEPTIONS_STATUS_MAP.put(EmailAlreadyExistsException.class, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(BaseAppException.class)
