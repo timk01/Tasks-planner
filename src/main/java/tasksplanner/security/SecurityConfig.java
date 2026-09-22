@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.time.Clock;
@@ -23,16 +24,26 @@ import java.time.Clock;
 public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final SchedulerFilter schedulerFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http
+    ) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(
+                        schedulerFilter,
+                        BearerTokenAuthenticationFilter.class
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/user").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/tasks/getScheduledTasks" //temp
-                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/tasks/getScheduledTasks"
+                        )
+                        .hasAuthority("SCHEDULER_SERVICE")
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer(
                         oauth -> oauth

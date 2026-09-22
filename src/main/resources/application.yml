@@ -20,6 +20,10 @@ spring:
         jwt:
           issuer-uri: https://idp.example.com/issuer
 
+scheduler:
+  auth-header: ${SCHEDULER_AUTH_HEADER}
+  auth-key: ${SCHEDULER_AUTH_KEY}
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
