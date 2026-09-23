@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import tasksplanner.entity.Task;
+import tasksplanner.response.ScheduledTaskResponse;
 import tasksplanner.response.TaskResponse;
 
 import java.util.List;
@@ -19,4 +20,11 @@ public interface TaskMapper {
     TaskResponse toTaskResponse(Task task);
 
     List<TaskResponse> toTaskResponseList(List<Task> tasks);
+
+    @Mapping(source = "id", target = "taskId")
+    @Mapping(source = "taskStatus", target = "status")
+    @Mapping(source = "taskOwner.id", target = "ownerId")
+    ScheduledTaskResponse toScheduledTaskResponse(Task task);
+
+    List<ScheduledTaskResponse> toScheduledTaskResponseList(List<Task> tasks);
 }

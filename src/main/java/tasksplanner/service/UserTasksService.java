@@ -8,6 +8,7 @@ import tasksplanner.entity.Task;
 import tasksplanner.entity.TaskStatus;
 import tasksplanner.mapper.TaskMapper;
 import tasksplanner.repository.TaskRepository;
+import tasksplanner.response.ScheduledTaskResponse;
 import tasksplanner.response.TaskResponse;
 
 import java.time.Instant;
@@ -64,7 +65,7 @@ public class UserTasksService {
                     )
             );
 
-            TaskResponse taskResponse = mapper.toTaskResponse(task);
+            ScheduledTaskResponse taskResponse = mapper.toScheduledTaskResponse(task);
             if (finished) {
                 userTasks.get(ownerId).finishedTasks().add(taskResponse);
             } else {

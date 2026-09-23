@@ -23,16 +23,21 @@ public class UserTasksController {
 
     @GetMapping()
     public ResponseEntity<List<UserTasks>> getUsersTasks(
-            /* @AuthenticationPrincipal Jwt jwt,*/
-            //toDo
-            //здесь ТОЧНО будет какой-то токен, иначе мы ломимся из стороннего сервиса
-            //в наш и хватаем защищенные данные просто так.
-
             @RequestParam("from")
             Instant from,
             @RequestParam("to")
             Instant to
     ) {
+        validateTimeParams(from, to);
+
+        List<UserTasks> tasks = service.getUserTasks(from, to);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(tasks);
+    }
+
+    private void validateTimeParams(Instant from, Instant to) {
         if (!from.isBefore(to)) {
             throw new IllegalDateException(
                     String.format(
@@ -41,11 +46,5 @@ public class UserTasksController {
                             to)
             );
         }
-
-        List<UserTasks> tasks = service.getUserTasks(from, to);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(tasks);
     }
 }

@@ -5,7 +5,8 @@ import tasksplanner.entity.TaskStatus;
 
 import java.time.OffsetDateTime;
 
-public record TaskResponse(
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record ScheduledTaskResponse(
         Long taskId,
         String header,
         String text,

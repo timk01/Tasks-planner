@@ -39,7 +39,6 @@ public class TaskCreateServiceTest {
     @Captor
     private ArgumentCaptor<Task> taskArgumentCaptor;
 
-
     @Test
     public void createTaskIsSucceeded() {
         long userId = 1L;
