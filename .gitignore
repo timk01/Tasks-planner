@@ -41,3 +41,4 @@ deploy-*.sh
 
 # don't commit secrets and rss
 .env
+requests/tasks/http-client.private.env.json
