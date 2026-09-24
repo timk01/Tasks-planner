@@ -1,0 +1,157 @@
+.form {
+  width: 100%;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 16px;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+
+.header {
+  margin-bottom: 24px;
+}
+
+
+.header h2 {
+  margin: 0;
+
+  font-size: 22px;
+
+  color: #111827;
+}
+
+
+.field {
+  margin-bottom: 20px;
+}
+
+
+.field label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #374151;
+}
+
+
+.field input,
+.field textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 12px 14px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  font-size: 15px;
+
+  font-family: inherit;
+
+  color: #111827;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+
+.field textarea {
+  min-height: 120px;
+
+  resize: vertical;
+}
+
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #9ca3af;
+}
+
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px rgba(
+      37,
+      99,
+      235,
+      0.15
+    );
+}
+
+
+.actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 8px;
+}
+
+
+.actions button {
+  padding: 11px 18px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
+}
+
+
+.actions button:hover {
+  opacity: 0.9;
+}
+
+
+.actions button:active {
+  transform: scale(0.98);
+}
+
+
+.cancelButton {
+  background: #f3f4f6;
+
+  color: #374151;
+
+  border: 1px solid #d1d5db;
+}
+
+
+.createButton {
+  background: #2563eb;
+
+  color: white;
+
+  border: none;
+}
