@@ -1,4 +1,29 @@
 services:
+  task-planner:
+    build: .
+    env_file:
+      - .env
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+
+  summarization-service:
+    build: ${SUMMARIZATION_BUILD_CONTEXT}
+    env_file:
+      - ${SUMMARIZATION_BUILD_CONTEXT}/.env
+
+  scheduler:
+    build: ${SCHEDULER_BUILD_CONTEXT}
+    env_file:
+      - ${SCHEDULER_BUILD_CONTEXT}/.env
+
+  email-sender:
+    build: ${EMAIL_SENDER_BUILD_CONTEXT}
+    env_file:
+      - ${EMAIL_SENDER_BUILD_CONTEXT}/.env
+
   db:
     image: ${POSTGRES_IMAGE}
     container_name: tasks_planner_postgres_compose

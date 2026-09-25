@@ -1,0 +1,15 @@
+docker build -t task-planner ..git
+.gitignore
+
+.gradle
+build
+out
+
+.idea
+*.iml
+
+logs
+*.log
+
+.env
+.env.*
