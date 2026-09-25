@@ -13,16 +13,25 @@ services:
     build: ${SUMMARIZATION_BUILD_CONTEXT}
     env_file:
       - ${SUMMARIZATION_BUILD_CONTEXT}/.env
+    depends_on:
+      kafka:
+        condition: service_healthy
 
   scheduler:
     build: ${SCHEDULER_BUILD_CONTEXT}
     env_file:
       - ${SCHEDULER_BUILD_CONTEXT}/.env
+    depends_on:
+      kafka:
+        condition: service_healthy
 
   email-sender:
     build: ${EMAIL_SENDER_BUILD_CONTEXT}
     env_file:
       - ${EMAIL_SENDER_BUILD_CONTEXT}/.env
+    depends_on:
+      kafka:
+        condition: service_healthy
 
   db:
     image: ${POSTGRES_IMAGE}
@@ -54,8 +63,13 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
     volumes:
       - tasks_planner_kafka_data:/tmp/kraft-combined-logs
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
 volumes:
   tasks_planner_postgres_data:
   tasks_planner_kafka_data:
-
