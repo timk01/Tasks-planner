@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -16,10 +17,10 @@ import tasksplanner.repository.TaskRepository;
 import tasksplanner.repository.UserRepository;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
+import tasksplanner.service.KafkaService;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,6 +37,9 @@ public class AbstractIntegrationTest {
 
     @Autowired
     protected TaskRepository taskRepository;
+
+    @MockitoBean
+    protected KafkaService kafkaService;
     protected static PostgreSQLContainer postgres =
             new PostgreSQLContainer("postgres:15-alpine");
 
@@ -76,17 +80,6 @@ public class AbstractIntegrationTest {
                         HttpHeaders.AUTHORIZATION, org.hamcrest.Matchers.startsWith("Bearer ")
                 ))
                 .andReturn();
-
-        if (result.getResponse().getStatus() != 200) {
-            throw new AssertionError(
-                    "Registration failed. Status: "
-                            + result.getResponse().getStatus()
-                            + ", body: "
-                            + result.getResponse().getContentAsString()
-                            + ", exception: "
-                            + result.getResolvedException()
-            );
-        }
 
         UserResponse response = jsonMapper.readValue(
                 result.getResponse().getContentAsString(),
