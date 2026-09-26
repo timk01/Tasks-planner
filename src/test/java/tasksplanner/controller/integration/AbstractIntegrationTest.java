@@ -71,12 +71,22 @@ public class AbstractIntegrationTest {
         MvcResult result = mockMvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(dto)))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().string(
                         HttpHeaders.AUTHORIZATION, org.hamcrest.Matchers.startsWith("Bearer ")
                 ))
                 .andReturn();
+
+        if (result.getResponse().getStatus() != 200) {
+            throw new AssertionError(
+                    "Registration failed. Status: "
+                            + result.getResponse().getStatus()
+                            + ", body: "
+                            + result.getResponse().getContentAsString()
+                            + ", exception: "
+                            + result.getResolvedException()
+            );
+        }
 
         UserResponse response = jsonMapper.readValue(
                 result.getResponse().getContentAsString(),
