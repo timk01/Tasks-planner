@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tasksplanner.controller.integration.AbstractIntegrationTest;
+import tasksplanner.controller.integration.AbstractIntegrationTestWithMockedKafka;
 import tasksplanner.entity.User;
 import tasksplanner.request.UserLoginRequest;
 
@@ -13,7 +14,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class UserIntegrationTest extends AbstractIntegrationTest {
+public class UserIntegrationTest extends AbstractIntegrationTestWithMockedKafka {
 
     @Autowired
     private PasswordEncoder encoder;

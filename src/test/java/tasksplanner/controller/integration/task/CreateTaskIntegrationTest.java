@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import tasksplanner.controller.integration.AbstractIntegrationTest;
+import tasksplanner.controller.integration.AbstractIntegrationTestWithMockedKafka;
 import tasksplanner.entity.TaskStatus;
 import tasksplanner.request.TaskCreateRequest;
 
@@ -12,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class CreateTaskIntegrationTest extends AbstractIntegrationTest {
+public class CreateTaskIntegrationTest extends AbstractIntegrationTestWithMockedKafka {
 
     @Test
     public void createTaskIsSucceeded() throws Exception {

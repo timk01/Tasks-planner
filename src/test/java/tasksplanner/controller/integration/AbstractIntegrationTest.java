@@ -38,8 +38,6 @@ public class AbstractIntegrationTest {
     @Autowired
     protected TaskRepository taskRepository;
 
-    @MockitoBean
-    protected KafkaService kafkaService;
     protected static PostgreSQLContainer postgres =
             new PostgreSQLContainer("postgres:15-alpine");
 

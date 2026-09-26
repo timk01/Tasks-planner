@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import tasksplanner.controller.integration.AbstractIntegrationTest;
+import tasksplanner.controller.integration.AbstractIntegrationTestWithMockedKafka;
 import tasksplanner.entity.TaskStatus;
 import tasksplanner.request.TaskCreateRequest;
 import tasksplanner.response.TaskResponse;
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class DeleteTaskIntegrationTest extends AbstractIntegrationTest {
+public class DeleteTaskIntegrationTest extends AbstractIntegrationTestWithMockedKafka {
 
     @Test
     public void deleteTaskIsSucceeded() throws Exception {
