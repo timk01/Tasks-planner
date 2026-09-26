@@ -30,4 +30,5 @@ public class UserDetailsServiceForTaskPlanner implements UserDetailsService {
                 .authorities(Collections.emptyList())
                 .build();
     }
+
 }
