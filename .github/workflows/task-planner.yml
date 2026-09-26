@@ -41,7 +41,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}
           password: ${{ secrets.DOCKERHUB_TOKEN_TASK_PLANNER }}
 
       - name: Build and push Task Planner
@@ -51,5 +51,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/task-planner:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/task-planner:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}/task-planner:latest
+            ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}/task-planner:${{ github.sha }}
