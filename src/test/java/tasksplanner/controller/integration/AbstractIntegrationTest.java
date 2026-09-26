@@ -19,6 +19,7 @@ import tasksplanner.response.UserResponse;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,6 +71,7 @@ public class AbstractIntegrationTest {
         MvcResult result = mockMvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(dto)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().string(
                         HttpHeaders.AUTHORIZATION, org.hamcrest.Matchers.startsWith("Bearer ")
