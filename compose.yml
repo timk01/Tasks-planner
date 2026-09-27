@@ -1,34 +1,34 @@
 services:
   task-planner:
-    build: .
+    image: timk1111111/task-planner:latest
     env_file:
       - .env
 
   frontend:
-    build: ./frontend
+    image: timk1111111/task-planner-frontend:latest
     ports:
       - "5173:80"
 
   summarization-service:
-    build: ${SUMMARIZATION_BUILD_CONTEXT}
+    image: timk1111111/summarization-service:latest
     env_file:
-      - ${SUMMARIZATION_BUILD_CONTEXT}/.env
+      - .env
     depends_on:
       kafka:
         condition: service_healthy
 
   scheduler:
-    build: ${SCHEDULER_BUILD_CONTEXT}
+    image: timk1111111/scheduler:latest
     env_file:
-      - ${SCHEDULER_BUILD_CONTEXT}/.env
+      - .env
     depends_on:
       kafka:
         condition: service_healthy
 
   email-sender:
-    build: ${EMAIL_SENDER_BUILD_CONTEXT}
+    image: timk1111111/email-sender:latest
     env_file:
-      - ${EMAIL_SENDER_BUILD_CONTEXT}/.env
+      - .env
     depends_on:
       kafka:
         condition: service_healthy
