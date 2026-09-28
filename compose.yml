@@ -1,16 +1,19 @@
 services:
   task-planner:
     image: timk1111111/task-planner:latest
+    restart: unless-stopped
     env_file:
       - .env
 
   frontend:
     image: timk1111111/task-planner-frontend:latest
+    restart: unless-stopped
     ports:
       - "5173:80"
 
   summarization-service:
     image: timk1111111/summarization-service:latest
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -19,6 +22,7 @@ services:
 
   scheduler:
     image: timk1111111/scheduler:latest
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -27,6 +31,7 @@ services:
 
   email-sender:
     image: timk1111111/email-sender:latest
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
@@ -35,6 +40,7 @@ services:
 
   db:
     image: ${POSTGRES_IMAGE}
+    restart: unless-stopped
     container_name: tasks_planner_postgres_compose
     ports:
       - "5433:5432"
@@ -47,6 +53,7 @@ services:
 
   kafka:
     image: ${KAFKA_IMAGE}
+    restart: unless-stopped
     container_name: kafka_compose
     ports:
       - "9094:9094"
