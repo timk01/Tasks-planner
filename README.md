@@ -254,3 +254,7 @@ HTTP-сценарии для ручной проверки находятся в
 ```text
 requests/
 ```
+
+## CI/CD
+
+При push в `main` GitHub Actions запускает тесты, собирает Docker-образы Task Planner и Frontend и публикует их в Docker Hub.
