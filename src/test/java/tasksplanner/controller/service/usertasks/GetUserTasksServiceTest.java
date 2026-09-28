@@ -2,8 +2,6 @@ package tasksplanner.controller.service.usertasks;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,11 +12,7 @@ import tasksplanner.entity.TaskStatus;
 import tasksplanner.entity.User;
 import tasksplanner.mapper.TaskMapper;
 import tasksplanner.repository.TaskRepository;
-import tasksplanner.repository.UserRepository;
-import tasksplanner.request.TaskCreateRequest;
 import tasksplanner.response.ScheduledTaskResponse;
-import tasksplanner.response.TaskResponse;
-import tasksplanner.service.TaskService;
 import tasksplanner.service.UserTasksService;
 
 import java.time.Instant;
@@ -26,7 +20,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

@@ -14,7 +14,6 @@ import tasksplanner.entity.User;
 import tasksplanner.exception.managed.EmailAlreadyExistsException;
 import tasksplanner.exception.managed.InvalidLoginDataException;
 import tasksplanner.repository.UserRepository;
-import tasksplanner.request.UserLoginRequest;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
 import tasksplanner.service.KafkaService;
@@ -26,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {

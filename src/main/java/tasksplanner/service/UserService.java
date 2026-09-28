@@ -6,14 +6,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tasksplanner.dto.EmailSendingTask;
 import tasksplanner.entity.User;
-import tasksplanner.exception.managed.InvalidLoginDataException;
 import tasksplanner.exception.managed.EmailAlreadyExistsException;
+import tasksplanner.exception.managed.InvalidLoginDataException;
 import tasksplanner.repository.UserRepository;
-import tasksplanner.request.UserLoginRequest;
 import tasksplanner.request.UserRegisterRequest;
 import tasksplanner.response.UserResponse;
-
-import java.util.Optional;
 
 @Slf4j
 @Service

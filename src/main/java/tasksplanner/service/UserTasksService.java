@@ -9,12 +9,10 @@ import tasksplanner.entity.TaskStatus;
 import tasksplanner.mapper.TaskMapper;
 import tasksplanner.repository.TaskRepository;
 import tasksplanner.response.ScheduledTaskResponse;
-import tasksplanner.response.TaskResponse;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

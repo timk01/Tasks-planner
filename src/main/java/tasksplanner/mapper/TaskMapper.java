@@ -29,7 +29,7 @@ public interface TaskMapper {
     default OffsetDateTime toMoscowOffset(OffsetDateTime time) {
         return time == null
                 ? null
-                : time.atZoneSameInstant(ZoneId.of("Europe/Moscow"))
+                : time.atZoneSameInstant(MOSCOW_ZONE)
                 .toOffsetDateTime();
     }
 

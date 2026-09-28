@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import tasksplanner.controller.integration.AbstractIntegrationTest;
 import tasksplanner.controller.integration.AbstractIntegrationTestWithMockedKafka;
 import tasksplanner.entity.User;
 import tasksplanner.request.UserLoginRequest;

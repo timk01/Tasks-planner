@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import tasksplanner.controller.integration.AbstractIntegrationTest;
 import tasksplanner.controller.integration.AbstractIntegrationTestWithMockedKafka;
 import tasksplanner.entity.TaskStatus;
 import tasksplanner.request.TaskCreateRequest;

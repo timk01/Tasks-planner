@@ -1,7 +1,6 @@
 package tasksplanner.dto;
 
 import tasksplanner.response.ScheduledTaskResponse;
-import tasksplanner.response.TaskResponse;
 
 import java.util.List;
 

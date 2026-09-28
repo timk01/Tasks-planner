@@ -29,9 +29,9 @@ public class SchedulerFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String receivedKey  = request.getHeader(header);
+        String receivedKey = request.getHeader(header);
 
-        if (receivedKey  != null && receivedKey .equals(key)) {
+        if (receivedKey != null && receivedKey.equals(key)) {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     "scheduler-service",
                     null,
@@ -47,7 +47,7 @@ public class SchedulerFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return !request.getRequestURI()
                 .equals("/tasks/getScheduledTasks");
     }

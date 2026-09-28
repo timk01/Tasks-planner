@@ -2,7 +2,6 @@ package tasksplanner.controller.integration.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
-import tasksplanner.controller.integration.AbstractIntegrationTest;
 import tasksplanner.controller.integration.AbstractIntegrationTestWithMockedKafka;
 
 import java.util.UUID;

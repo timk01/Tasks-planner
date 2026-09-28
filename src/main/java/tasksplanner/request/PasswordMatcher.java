@@ -11,5 +11,4 @@ public class PasswordMatcher implements ConstraintValidator<PasswordsMatch, User
     public boolean isValid(UserRegisterRequest value, ConstraintValidatorContext context) {
         return Objects.equals(value.password(), value.passwordConfirmation());
     }
-
 }

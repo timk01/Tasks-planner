@@ -75,10 +75,10 @@ public class TaskService {
      * (CREATED - CREATED, IN_PROCESS - IN_PROCESS, FINISHED - FINISHED),
      * remain in same status.
      *
-     * @param taskId
-     * @param userId
-     * @param request
-     * @return
+     * @param taskId  task to find
+     * @param userId  task owner
+     * @param request update request of task
+     * @return TaskResponse
      */
 
     @Transactional

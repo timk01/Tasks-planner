@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tasksplanner.entity.User;
-import tasksplanner.exception.managed.InvalidLoginDataException;
 import tasksplanner.repository.UserRepository;
 
 import java.util.Collections;
@@ -30,5 +29,4 @@ public class UserDetailsServiceForTaskPlanner implements UserDetailsService {
                 .authorities(Collections.emptyList())
                 .build();
     }
-
 }
