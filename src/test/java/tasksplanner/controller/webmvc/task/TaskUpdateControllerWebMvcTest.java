@@ -78,6 +78,36 @@ class TaskUpdateControllerWebMvcTest {
                 .andExpect(jsonPath("$.ownerId").value(userId));
     }
 
+    @Test
+    public void updateTaskWithMultilineTextIsSucceeded() throws Exception {
+        long userId = 1L;
+        long taskId = 1L;
+        String header = "task_number_N_updated";
+        String text = "first line\nsecond line";
+        TaskStatus status = TaskStatus.IN_PROCESS;
+
+        TaskUpdateRequest dto = new TaskUpdateRequest(header, text, status);
+
+        TaskResponse response = new TaskResponse(
+                taskId,
+                header,
+                text,
+                status,
+                null,
+                userId
+        );
+
+        when(taskService.updateTask(taskId, userId, dto))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/tasks/" + taskId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(jwt().jwt(jwt -> jwt.subject("1"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value(text));
+    }
+
     @ParameterizedTest
     @MethodSource("invalidUpdateTaskData")
     public void updateTaskFailedDueToInvalidData(String header, String text)

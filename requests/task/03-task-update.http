@@ -207,7 +207,7 @@ Authorization: Bearer {{test_token}}
 
 {
   "header": "{{test_header}}_changed",
-  "text": "{{test_text}}_changed",
+  "text": "{{test_text}}_changed\nsecond line",
   "status": "{{task_status_in_progress}}"
 }
 
@@ -218,7 +218,7 @@ Authorization: Bearer {{test_token}}
         const taskId = Number(client.global.get("test_task_id"));
         const userId = Number(client.global.get("test_id"));
         const expectedHeader = client.global.get("test_header") + "_changed";
-        const expectedText = client.global.get("test_text") + "_changed";
+        const expectedText = client.global.get("test_text") + "_changed\nsecond line";
 
         client.assert(response.status === 200, "Response status is 200");
 
@@ -246,7 +246,7 @@ Authorization: Bearer {{test_token}}
         const taskId = Number(client.global.get("test_task_id"));
         const userId = Number(client.global.get("test_id"));
         const expectedHeader = client.global.get("test_header") + "_changed";
-        const expectedText = client.global.get("test_text") + "_changed";
+        const expectedText = client.global.get("test_text") + "_changed\nsecond line";
 
         client.assert(response.status === 200, "Response status is 200");
 

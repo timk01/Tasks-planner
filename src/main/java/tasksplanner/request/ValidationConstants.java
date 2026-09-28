@@ -17,5 +17,5 @@ public final class ValidationConstants {
             = "^[a-zA-Z0-9!@#$%^&*(),.?\":{}|<>\\[\\]\\\\/`~+=\\-_';]*$";
 
     public static final String STRING_CONTAINS_NON_WHITESPACE_PATTERN
-            = ".*\\S.*";
+            = "(?s).*\\S.*";
 }
